@@ -101,13 +101,11 @@
                 </div>
 
                 <div id="camera-section" class="hidden">
-                    <!-- FIXED: Removed fixed height classes (h-*) to ensure a perfect circle based on width -->
                     <div class="video-container mx-auto mb-4 w-56 sm:w-64 md:w-80 max-w-full bg-gray-200">
                         <video id="video" playsinline autoplay muted></video>
                         <canvas id="overlay"></canvas>
                     </div>
                     <canvas id="capture-canvas" class="hidden"></canvas>
-                    <!-- FIXED: Replaced fixed height with aspect-square to maintain a perfect circle -->
                     <img id="photo-preview" class="hidden rounded-full mx-auto mb-4 w-56 sm:w-64 md:w-80 max-w-full aspect-square object-cover border-4 border-green-500">
                     <p id="face-status" class="text-center text-sm mb-4 h-5 font-semibold"></p>
                 </div>
@@ -155,7 +153,7 @@
     // ===================================================================================
     // CONFIGURATION
     // ===================================================================================
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzNB9aB4gbmxTWofdQyBoBPQPFJ6mpfaSd-FnI-dB3JjAkxrGhj5f_kwPe2I6DOZbVr/exec'; // <--- Change this URL
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby_QpP4E55Y3VwN9V4W2V_s9l8W6j5i3wT6j5k2g8J3d7G8r4Y3z2X1/exec'; // <--- Change this URL
     // ===================================================================================
 
     // DOM Elements
@@ -227,7 +225,7 @@
             formState.classList.remove('hidden');
         } catch (error) {
             console.error('Error fetching student data:', error);
-            loadingState.innerHTML = `<p class="text-red-500 font-bold text-center">មានបញ្ហាក្នុងការទាញយកទិន្នន័យ។<br>សូមពិនិត្យ URL របស់ Apps Script ហើយព្យាយាមម្តងទៀត។</p>`;
+            loadingState.innerHTML = `<p class="text-red-500 font-bold text-center">มีបញ្ហាក្នុងការទាញយកទិន្នន័យ។<br>សូមពិនិត្យ URL របស់ Apps Script ហើយព្យាយាមម្តងទៀត។</p>`;
         }
     }
 
@@ -319,7 +317,8 @@
     }
 
     captureBtn.addEventListener('click', () => {
-        stopCamera();
+        // ========= FIX STARTS HERE (REVISED LOGIC) =========
+        // 1. Draw the image from the video to the canvas.
         const context = captureCanvas.getContext('2d');
         const size = 512;
         captureCanvas.width = size;
@@ -331,12 +330,19 @@
         const sWidth = video.videoHeight;
         const sHeight = video.videoHeight;
         context.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, size, size);
+        
+        // 2. Set the photo preview source from the canvas data IMMEDIATELY.
         photoPreview.src = captureCanvas.toDataURL('image/jpeg');
+
+        // 3. NOW, it's safe to stop the camera stream.
+        stopCamera();
+        // ========= FIX ENDS HERE =========
+
+        // 4. Update the UI to show the preview and hide the video.
         video.parentElement.classList.add('hidden');
         photoPreview.classList.remove('hidden');
         captureBtn.classList.add('hidden');
         uploadBtn.classList.remove('hidden');
-        // FIXED: Corrected variable name from retake-btn to retakeBtn
         retakeBtn.classList.remove('hidden');
         faceStatus.classList.add('hidden');
     });
@@ -385,7 +391,7 @@
             });
             const result = await response.json();
             if (result.status === 'success') {
-                showMessage(`ជោគជ័យ! រូបភាពសម្រាប់ ${student[1]} ត្រូវបានបញ្ជូនเรียบร้อยแล้ว។`);
+                showMessage(`ជោគជ័យ! រូបភាព ${student[1]} ត្រូវបានបញ្ជូនជោគជ័យ`);
                  setTimeout(() => location.reload(), 2500);
             } else {
                 throw new Error(result.message || 'Unknown error from server');
