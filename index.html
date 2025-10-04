@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ប្រព័ន្ធវិភាគ และថតរូបកាត</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Choices.js for searchable dropdown -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- face-api.js for face detection -->
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <style>
+        body {
+            font-family: 'Kantumruy Pro', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f0f2f5;
+            background-image: linear-gradient(to top, #accbee 0%, #e7f0fd 100%);
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+        #overlay, #video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* This makes the video fill the circle */
+            transform: scaleX(-1);
+        }
+        .video-container {
+            position: relative;
+            /* width is set by Tailwind, this maintains the aspect ratio */
+            padding-top: 100%; /* 1:1 Aspect Ratio */
+            border-radius: 50%;
+            overflow: hidden;
+            border: 6px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1.5s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Choices.js custom styling */
+        .choices__inner {
+            padding: 0.65rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+        }
+        .choices[data-type*="select-one"]::after {
+            right: 1.25rem;
+        }
+    </style>
+    <!-- Khmer Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+
+    <div class="container p-4">
+        <div id="app-card" class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+            <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-2">ប្រព័ន្ធថតរូបកាត</h1>
+            <p class="text-center text-gray-500 mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នកដើម្បីចាប់ផ្តើម</p>
+            
+            <div id="loading-state" class="flex flex-col items-center justify-center space-y-4 py-8">
+                <div class="loader"></div>
+                <p class="text-gray-600">កំពុងទាញយកទិន្នន័យសិស្ស...</p>
+            </div>
+
+            <div id="form-state" class="hidden">
+                <div class="mb-4">
+                    <label for="student-select" class="block text-sm font-medium text-gray-700 mb-1">ស្វែងរកអត្តលេខ ឬឈ្មោះ</label>
+                    <select id="student-select">
+                        <!-- Options will be populated by Choices.js -->
+                    </select>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">គោត្តនាម និងនាម</label>
+                        <p id="student-name" class="mt-1 p-3 bg-gray-100 rounded-lg h-12 flex items-center text-gray-800">-</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">ថ្នាក់រៀន</label>
+                        <p id="student-class" class="mt-1 p-3 bg-gray-100 rounded-lg h-12 flex items-center text-gray-800">-</p>
+                    </div>
+                </div>
+
+                <div id="camera-section" class="hidden">
+                    <!-- FIXED: Removed fixed height classes (h-*) to ensure a perfect circle based on width -->
+                    <div class="video-container mx-auto mb-4 w-56 sm:w-64 md:w-80 max-w-full bg-gray-200">
+                        <video id="video" playsinline autoplay muted></video>
+                        <canvas id="overlay"></canvas>
+                    </div>
+                    <canvas id="capture-canvas" class="hidden"></canvas>
+                    <!-- FIXED: Replaced fixed height with aspect-square to maintain a perfect circle -->
+                    <img id="photo-preview" class="hidden rounded-full mx-auto mb-4 w-56 sm:w-64 md:w-80 max-w-full aspect-square object-cover border-4 border-green-500">
+                    <p id="face-status" class="text-center text-sm mb-4 h-5 font-semibold"></p>
+                </div>
+
+                <div class="flex flex-col space-y-3">
+                    <button id="start-camera-btn" disabled class="w-full bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition disabled:bg-gray-300 flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <span>ចាប់ផ្តើមបើកកាមេរ៉ា</span>
+                    </button>
+                    <button id="capture-btn" class="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition hidden disabled:bg-gray-400 flex items-center justify-center space-x-2">
+                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a.5.5 0 01.5-.5h3a.5.5 0 010 1h-3A.5.5 0 018 7z" clip-rule="evenodd"></path><path d="M10 3a.5.5 0 01.5.5v3a.5.5 0 01-1 0v-3A.5.5 0 0110 3z"></path></svg>
+                        <span>ថតរូប</span>
+                    </button>
+                    <button id="upload-btn" class="w-full bg-purple-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-purple-700 transition hidden disabled:bg-gray-400 flex items-center justify-center space-x-2">
+                        <span id="upload-text">
+                            <svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                            បញ្ជូនរូបភាព
+                        </span>
+                        <div id="upload-loader" class="loader w-5 h-5 border-t-white hidden"></div>
+                    </button>
+                    <button id="retake-btn" class="w-full bg-gray-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-600 transition hidden flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 9a9 9 0 0114.13-4.13M20 15a9 9 0 01-14.13 4.13"></path></svg>
+                        <span>ថតឡើងវិញ</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="message-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
+                 <div class="bg-white rounded-2xl p-8 shadow-xl text-center transform transition-all" style="animation: fade-in-up 0.3s forwards;">
+                     <div id="modal-icon-container" class="mx-auto mb-4"></div>
+                     <p id="modal-message" class="text-lg text-gray-700 mb-6"></p>
+                     <button id="modal-close-btn" class="bg-blue-500 text-white font-bold py-2 px-8 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">យល់ព្រម</button>
+                 </div>
+            </div>
+            <style>
+                @keyframes fade-in-up {
+                    0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+                    100% { opacity: 1; transform: translateY(0) scale(1); }
+                }
+            </style>
+        </div>
+    </div>
+
+<script>
+    // ===================================================================================
+    // CONFIGURATION
+    // ===================================================================================
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzNB9aB4gbmxTWofdQyBoBPQPFJ6mpfaSd-FnI-dB3JjAkxrGhj5f_kwPe2I6DOZbVr/exec'; // <--- Change this URL
+    // ===================================================================================
+
+    // DOM Elements
+    const loadingState = document.getElementById('loading-state');
+    const formState = document.getElementById('form-state');
+    const studentSelect = document.getElementById('student-select');
+    const studentNameEl = document.getElementById('student-name');
+    const studentClassEl = document.getElementById('student-class');
+    const startCameraBtn = document.getElementById('start-camera-btn');
+    const captureBtn = document.getElementById('capture-btn');
+    const uploadBtn = document.getElementById('upload-btn');
+    const retakeBtn = document.getElementById('retake-btn');
+    const cameraSection = document.getElementById('camera-section');
+    const video = document.getElementById('video');
+    const captureCanvas = document.getElementById('capture-canvas');
+    const photoPreview = document.getElementById('photo-preview');
+    const faceStatus = document.getElementById('face-status');
+    const uploadText = document.getElementById('upload-text');
+    const uploadLoader = document.getElementById('upload-loader');
+    
+    // Modal Elements
+    const messageModal = document.getElementById('message-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+    const modalIconContainer = document.getElementById('modal-icon-container');
+
+    const successIcon = `<svg class="w-16 h-16 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+    const errorIcon = `<svg class="w-16 h-16 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+
+    let studentsData = [];
+    let currentStream;
+    let faceApiInterval;
+    let choicesInstance = null;
+
+    function showMessage(message, type = 'success') {
+        modalMessage.textContent = message;
+        modalIconContainer.innerHTML = type === 'success' ? successIcon : errorIcon;
+        messageModal.classList.remove('hidden');
+    }
+
+    modalCloseBtn.addEventListener('click', () => {
+        messageModal.classList.add('hidden');
+    });
+
+    async function loadModels() {
+        const MODEL_URL = 'https://justadudewhohacks.github.io/face-api.js/models';
+        try {
+            await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+            console.log("FaceAPI models loaded successfully.");
+        } catch (error) {
+            console.error("Error loading FaceAPI models:", error);
+            showMessage("មិនអាចទាញយកម៉ូដែលវិភាគមុខបានទេ។ សូមព្យាយាមម្តងទៀត។", "error");
+        }
+    }
+
+    async function fetchStudents() {
+        if (!SCRIPT_URL.includes('script.google.com')) {
+            loadingState.innerHTML = `<p class="text-red-500 font-bold">សូមមេត្តាប្តូរ SCRIPT_URL នៅក្នុងកូដជាមុនសិន។</p>`;
+            return;
+        }
+        try {
+            const response = await fetch(SCRIPT_URL);
+            if (!response.ok) throw new Error(`Network response was not ok (${response.status})`);
+            const data = await response.json();
+            if (data.error) throw new Error(data.message);
+            studentsData = data.slice(1);
+            populateChoices();
+            loadingState.classList.add('hidden');
+            formState.classList.remove('hidden');
+        } catch (error) {
+            console.error('Error fetching student data:', error);
+            loadingState.innerHTML = `<p class="text-red-500 font-bold text-center">មានបញ្ហាក្នុងការទាញយកទិន្នន័យ។<br>សូមពិនិត្យ URL របស់ Apps Script ហើយព្យាយាមម្តងទៀត។</p>`;
+        }
+    }
+
+    function initializeChoices() {
+        choicesInstance = new Choices(studentSelect, {
+            searchEnabled: true,
+            itemSelectText: 'ចុចដើម្បីជ្រើសរើស',
+            noResultsText: 'រកមិនឃើញលទ្ធផល',
+            noChoicesText: 'កំពុងទាញយកទិន្នន័យ...',
+            placeholder: true,
+            placeholderValue: 'វាយបញ្ចូលអត្តលេខ ឬឈ្មោះ...',
+            shouldSort: false, // Keep the order from the sheet
+        });
+    }
+
+    function populateChoices() {
+        const choices = studentsData.map(student => {
+            const id = student[0];
+            const name = student[1];
+            if (id && name) {
+                return { value: id, label: `${id} - ${name}` };
+            }
+            return null;
+        }).filter(Boolean);
+
+        choicesInstance.setChoices(choices, 'value', 'label', false);
+    }
+
+    studentSelect.addEventListener('change', (event) => {
+        const selectedId = event.detail.value;
+        if (selectedId) {
+            const student = studentsData.find(s => s[0].toString() === selectedId.toString());
+            if (student) {
+                studentNameEl.textContent = student[1] || '-';
+                studentClassEl.textContent = student[2] || '-';
+                startCameraBtn.disabled = false;
+            }
+        } else {
+            studentNameEl.textContent = '-';
+            studentClassEl.textContent = '-';
+            startCameraBtn.disabled = true;
+        }
+    });
+
+    startCameraBtn.addEventListener('click', async () => {
+        cameraSection.classList.remove('hidden');
+        try {
+            currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+            video.srcObject = currentStream;
+            video.addEventListener('loadedmetadata', () => {
+                startFaceDetection();
+                startCameraBtn.classList.add('hidden');
+                captureBtn.classList.remove('hidden');
+            });
+        } catch (err) {
+            console.error("Error accessing camera: ", err);
+            showMessage("មិនអាចចូលប្រើកាមេរ៉ាបានទេ។ សូមអនុញ្ញាតឱ្យគេហទំព័រនេះប្រើប្រាស់កាមេរ៉ារបស់អ្នក។", "error");
+        }
+    });
+
+    function startFaceDetection() {
+        faceApiInterval = setInterval(async () => {
+            if (video.readyState < 3) return;
+            const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
+            if (detections.length === 1) {
+                faceStatus.textContent = 'ល្អណាស់! ផ្ទៃមុខត្រូវបានស្គាល់។';
+                faceStatus.classList.remove('text-red-500');
+                faceStatus.classList.add('text-green-500');
+                captureBtn.disabled = false;
+            } else if (detections.length > 1) {
+                faceStatus.textContent = 'សូមរក្សាមុខតែម្នាក់ក្នុងរូបភាព។';
+                faceStatus.classList.add('text-red-500');
+                faceStatus.classList.remove('text-green-500');
+                captureBtn.disabled = true;
+            } else {
+                faceStatus.textContent = 'រកមិនឃើញផ្ទៃមុខ សូមដាក់មុខចំកណ្តាល។';
+                faceStatus.classList.add('text-red-500');
+                faceStatus.classList.remove('text-green-500');
+                captureBtn.disabled = true;
+            }
+        }, 500);
+    }
+    
+    function stopCamera() {
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+        }
+        clearInterval(faceApiInterval);
+    }
+
+    captureBtn.addEventListener('click', () => {
+        stopCamera();
+        const context = captureCanvas.getContext('2d');
+        const size = 512;
+        captureCanvas.width = size;
+        captureCanvas.height = size;
+        context.translate(size, 0);
+        context.scale(-1, 1);
+        const sx = (video.videoWidth - video.videoHeight) / 2;
+        const sy = 0;
+        const sWidth = video.videoHeight;
+        const sHeight = video.videoHeight;
+        context.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, size, size);
+        photoPreview.src = captureCanvas.toDataURL('image/jpeg');
+        video.parentElement.classList.add('hidden');
+        photoPreview.classList.remove('hidden');
+        captureBtn.classList.add('hidden');
+        uploadBtn.classList.remove('hidden');
+        // FIXED: Corrected variable name from retake-btn to retakeBtn
+        retakeBtn.classList.remove('hidden');
+        faceStatus.classList.add('hidden');
+    });
+
+    retakeBtn.addEventListener('click', async () => {
+        video.parentElement.classList.remove('hidden');
+        photoPreview.classList.add('hidden');
+        captureBtn.classList.remove('hidden');
+        uploadBtn.classList.add('hidden');
+        retakeBtn.classList.add('hidden');
+        faceStatus.classList.remove('hidden');
+        try {
+            currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+            video.srcObject = currentStream;
+            video.addEventListener('loadedmetadata', startFaceDetection);
+        } catch (err) {
+             showMessage("មិនអាចបើកកាមេរ៉ាឡើងវិញបានទេ។", "error");
+        }
+    });
+    
+    uploadBtn.addEventListener('click', async () => {
+        const studentId = choicesInstance.getValue(true);
+        if (!studentId) {
+            showMessage("សូមជ្រើសរើសសិស្សជាមុនសិន។", "error");
+            return;
+        }
+        const student = studentsData.find(s => s[0].toString() === studentId.toString());
+
+        uploadBtn.disabled = true;
+        retakeBtn.disabled = true;
+        uploadText.classList.add('hidden');
+        uploadLoader.classList.remove('hidden');
+        choicesInstance.disable();
+        
+        const imageData = captureCanvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+        
+        const payload = {
+            id: student[0], name: student[1], class: student[2], imageData: imageData
+        };
+
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                showMessage(`ជោគជ័យ! រូបភាពសម្រាប់ ${student[1]} ត្រូវបានបញ្ជូនเรียบร้อยแล้ว។`);
+                 setTimeout(() => location.reload(), 2500);
+            } else {
+                throw new Error(result.message || 'Unknown error from server');
+            }
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            showMessage(`មានបញ្ហាក្នុងការបញ្ជូនរូបភាព៖ ${error.message}`, "error");
+            uploadBtn.disabled = false;
+            retakeBtn.disabled = false;
+            uploadText.classList.remove('hidden');
+            uploadLoader.classList.add('hidden');
+            choicesInstance.enable();
+        }
+    });
+
+    window.onload = () => {
+        initializeChoices();
+        fetchStudents();
+        loadModels();
+    };
+</script>
+
+</body>
+</html>
+
