@@ -353,13 +353,13 @@
                 const isGoodQuality = detection.detection.score > 0.8; 
                 
                 if (isGoodQuality) {
-                    faceStatus.textContent = 'ល្អណាស់! រក្សាទីតាំងនេះไว้។';
+                    faceStatus.textContent = 'ល្អណាស់! រក្សាទីតាំងបែបនេះ';
                     faceStatus.classList.remove('text-red-500');
                     faceStatus.classList.add('text-green-500');
                     videoWrapper.classList.add('ready');
                     captureBtn.disabled = false;
                 } else {
-                    faceStatus.textContent = 'សូមเข้ามาใกล้ขึ้น ឬปรับแสงให้สว่างขึ้น';
+                    faceStatus.textContent = 'សូមចូលទៅជិតឬបំភ្លឺពន្លឺបន្ថែម';
                     faceStatus.classList.add('text-red-500');
                     faceStatus.classList.remove('text-green-500');
                     videoWrapper.classList.remove('ready');
@@ -464,7 +464,7 @@
             });
             const result = await response.json();
             if (result.status === 'success') {
-                showMessage(`ជោគជ័យ! រូបភាពសម្រាប់ ${student[1]} ត្រូវបានបញ្ជូនเรียบร้อยแล้ว។`);
+                showMessage(`ជោគជ័យ! រូបភាពសម្រាប់ ${student[1]} ត្រូវបានបញ្ជូនចូលទៅ Folder.`);
                  setTimeout(() => location.reload(), 2500);
             } else {
                 throw new Error(result.message || 'Unknown error from server');
@@ -495,4 +495,5 @@
 
 </body>
 </html>
+
 
