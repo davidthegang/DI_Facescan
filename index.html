@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ប្រព័ន្ធវិភាគថតរូបភាពសម្រាប់DI</title>
+    <title>ប្រព័ន្ធវិភាគ และថតរូបកាត</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="shortcut icon" href="https://img.freepik.com/premium-vector/face-scan-icon_933463-79729.jpg" type="image/x-icon">
     <!-- Choices.js for searchable dropdown -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
@@ -36,30 +35,53 @@
         }
         .video-container {
             position: relative;
-            /* width is set by Tailwind, this maintains the aspect ratio */
-            padding-top: 100%; /* 1:1 Aspect Ratio */
             border-radius: 50%;
             overflow: hidden;
             border: 6px solid #e2e8f0;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: border-color 0.3s ease;
         }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1.5s linear infinite;
+        .video-container.ready {
+            border-color: #22c55e; /* Green-500 */
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        /* Choices.js custom styling */
+@keyframes pulse-glow {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.6),
+                0 0 20px rgba(255, 0, 0, 0.4);
+  }
+  25% {
+    transform: scale(1.08);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.9),
+                0 0 35px rgba(0, 255, 255, 0.6);
+  }
+  50% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(43, 25, 202, 0.8),
+                0 0 30px rgba(43, 25, 202, 0.8);
+  }
+  75% {
+    transform: scale(1.08);
+    box-shadow: 0 0 25px rgba(14, 14, 13, 0.9),
+                0 0 35px rgba(14, 14, 13, 0.9);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(14, 209, 47, 0.6),
+                0 0 20px rgba(14, 209, 47, 0.6);
+  }
+}
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+  border-radius: 9999px;
+}
+
         .choices__inner {
-            padding: 0.65rem 1rem;
+            background-color: white;
+            padding: 0.55rem 1rem;
             border-radius: 0.5rem;
             border: 1px solid #d1d5db;
+            min-height: 3rem; /* 48px or h-12 */
         }
         .choices[data-type*="select-one"]::after {
             right: 1.25rem;
@@ -72,37 +94,41 @@
 </head>
 <body class="bg-gray-100">
 
+    <!-- NEW LOADING OVERLAY -->
+<div id="loading-state" class="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50 transition-opacity duration-300">
+    <!-- Logo with pulse + rainbow glow -->
+    <img src="di_logo.png" alt="Logo" 
+         class="w-28 h-28 mb-6 rounded-full object-cover shadow-lg animate-pulse-glow" 
+         id="loading-logo">
+    <p class="text-white mt-4 text-lg font-semibold">កំពុងទាញយកទិន្នន័យសិស្ស...</p>
+</div>
+
     <div class="container p-4">
-        <div id="app-card" class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+        <div id="app-card" class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl transition-all duration-300">
             <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-2">ប្រព័ន្ធថតរូបកាត</h1>
-            <p class="text-center text-gray-500 mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នកដើម្បីចាប់ផ្តើម</p>
-            
-            <div id="loading-state" class="flex flex-col items-center justify-center space-y-4 py-8">
-                <div class="loader"></div>
-                <p class="text-gray-600">កំពុងទាញយកទិន្នន័យសិស្ស...</p>
-            </div>
+            <p id="subtitle" class="text-center text-gray-500 mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នកដើម្បីចាប់ផ្តើម</p>
 
             <div id="form-state" class="hidden">
-                <div class="mb-4">
-                    <label for="student-select" class="block text-sm font-medium text-gray-700 mb-1">ស្វែងរកអត្តលេខ ឬឈ្មោះ</label>
-                    <select id="student-select">
-                        <!-- Options will be populated by Choices.js -->
-                    </select>
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">គោត្តនាម និងនាម</label>
-                        <p id="student-name" class="mt-1 p-3 bg-gray-100 rounded-lg h-12 flex items-center text-gray-800">-</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">ថ្នាក់រៀន</label>
-                        <p id="student-class" class="mt-1 p-3 bg-gray-100 rounded-lg h-12 flex items-center text-gray-800">-</p>
+                <div id="selection-area" class="mb-6">
+                     <div class="grid grid-cols-3 gap-4 items-end">
+                        <div class="col-span-2">
+                            <label for="student-select" class="block text-sm font-medium text-gray-700 mb-1">ស្វែងរកអត្តលេខ ឬឈ្មោះ</label>
+                            <select id="student-select"></select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ថ្នាក់រៀន</label>
+                            <div id="student-class-wrapper" class="w-full p-3 bg-gray-100 rounded-lg h-12 flex items-center justify-center text-gray-800 font-bold hidden">
+                                <span id="student-class-display" class="truncate"></span>
+                            </div>
+                            <div id="class-placeholder" class="w-full p-3 bg-gray-100 rounded-lg h-12 flex items-center justify-center text-gray-400">
+                                <span>...</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div id="camera-section" class="hidden">
-                    <div class="video-container mx-auto mb-4 w-56 sm:w-64 md:w-80 max-w-full bg-gray-200">
+                    <div id="video-wrapper" class="video-container aspect-square mx-auto mb-4 w-56 sm:w-64 md:w-80 max-w-full bg-gray-200">
                         <video id="video" playsinline autoplay muted></video>
                         <canvas id="overlay"></canvas>
                     </div>
@@ -112,12 +138,8 @@
                 </div>
 
                 <div class="flex flex-col space-y-3">
-                    <button id="start-camera-btn" disabled class="w-full bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition disabled:bg-gray-300 flex items-center justify-center space-x-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        <span>ចាប់ផ្តើមបើកកាមេរ៉ា</span>
-                    </button>
-                    <button id="capture-btn" class="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition hidden disabled:bg-gray-400 flex items-center justify-center space-x-2">
-                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a.5.5 0 01.5-.5h3a.5.5 0 010 1h-3A.5.5 0 018 7z" clip-rule="evenodd"></path><path d="M10 3a.5.5 0 01.5.5v3a.5.5 0 01-1 0v-3A.5.5 0 0110 3z"></path></svg>
+                    <button id="capture-btn" class="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition hidden disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
+                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a.5.5 S0 01.5-.5h3a.5.5 0 010 1h-3A.5.5 0 018 7z" clip-rule="evenodd"></path><path d="M10 3a.5.5 0 01.5.5v3a.5.5 0 01-1 0v-3A.5.5 0 0110 3z"></path></svg>
                         <span>ថតរូប</span>
                     </button>
                     <button id="upload-btn" class="w-full bg-purple-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-purple-700 transition hidden disabled:bg-gray-400 flex items-center justify-center space-x-2">
@@ -160,14 +182,17 @@
     // DOM Elements
     const loadingState = document.getElementById('loading-state');
     const formState = document.getElementById('form-state');
+    const subtitle = document.getElementById('subtitle');
+    const selectionArea = document.getElementById('selection-area');
     const studentSelect = document.getElementById('student-select');
-    const studentNameEl = document.getElementById('student-name');
-    const studentClassEl = document.getElementById('student-class');
-    const startCameraBtn = document.getElementById('start-camera-btn');
+    const studentClassWrapper = document.getElementById('student-class-wrapper');
+    const studentClassDisplay = document.getElementById('student-class-display');
+    const classPlaceholder = document.getElementById('class-placeholder');
     const captureBtn = document.getElementById('capture-btn');
     const uploadBtn = document.getElementById('upload-btn');
     const retakeBtn = document.getElementById('retake-btn');
     const cameraSection = document.getElementById('camera-section');
+    const videoWrapper = document.getElementById('video-wrapper');
     const video = document.getElementById('video');
     const captureCanvas = document.getElementById('capture-canvas');
     const photoPreview = document.getElementById('photo-preview');
@@ -202,7 +227,9 @@
     async function loadModels() {
         const MODEL_URL = 'https://justadudewhohacks.github.io/face-api.js/models';
         try {
-            await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+            // UPGRADED MODELS FOR HIGHER QUALITY SCAN
+            await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+            await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL); // New model for landmarks
             console.log("FaceAPI models loaded successfully.");
         } catch (error) {
             console.error("Error loading FaceAPI models:", error);
@@ -212,7 +239,10 @@
 
     async function fetchStudents() {
         if (!SCRIPT_URL.includes('script.google.com')) {
-            loadingState.innerHTML = `<p class="text-red-500 font-bold">សូមមេត្តាប្តូរ SCRIPT_URL នៅក្នុងកូដជាមុនសិន។</p>`;
+            const loadingText = loadingState.querySelector('p');
+            loadingState.querySelector('.loader').style.display = 'none';
+            loadingText.textContent = 'សូមមេត្តាប្តូរ SCRIPT_URL នៅក្នុងកូដជាមុនសិន។';
+            loadingText.classList.add('text-red-400');
             return;
         }
         try {
@@ -222,11 +252,20 @@
             if (data.error) throw new Error(data.message);
             studentsData = data.slice(1);
             populateChoices();
-            loadingState.classList.add('hidden');
+            
+            // Fade out and then hide the loading overlay
+            loadingState.classList.add('opacity-0');
+            setTimeout(() => {
+                loadingState.style.display = 'none';
+            }, 300); // This duration should match the CSS transition
+
             formState.classList.remove('hidden');
         } catch (error) {
             console.error('Error fetching student data:', error);
-            loadingState.innerHTML = `<p class="text-red-500 font-bold text-center">มีបញ្ហាក្នុងការទាញយកទិន្នន័យ។<br>សូមពិនិត្យ URL របស់ Apps Script ហើយព្យាយាមម្តងទៀត។</p>`;
+            const loadingText = loadingState.querySelector('p');
+            loadingState.querySelector('.loader').style.display = 'none';
+            loadingText.innerHTML = `มีបញ្หាក្នុងการទាញយកទិន្នន័យ។<br>សូមពិនិត្យ URL របស់ Apps Script ហើយព្យាយាមម្តងទៀត។`;
+            loadingText.classList.add('text-red-400');
         }
     }
 
@@ -238,7 +277,7 @@
             noChoicesText: 'កំពុងទាញយកទិន្នន័យ...',
             placeholder: true,
             placeholderValue: 'វាយបញ្ចូលអត្តលេខ ឬឈ្មោះ...',
-            shouldSort: false, // Keep the order from the sheet
+            shouldSort: false,
         });
     }
 
@@ -251,60 +290,73 @@
             }
             return null;
         }).filter(Boolean);
-
         choicesInstance.setChoices(choices, 'value', 'label', false);
     }
 
-    studentSelect.addEventListener('change', (event) => {
-        const selectedId = event.detail.value;
-        if (selectedId) {
-            const student = studentsData.find(s => s[0].toString() === selectedId.toString());
-            if (student) {
-                studentNameEl.textContent = student[1] || '-';
-                studentClassEl.textContent = student[2] || '-';
-                startCameraBtn.disabled = false;
-            }
-        } else {
-            studentNameEl.textContent = '-';
-            studentClassEl.textContent = '-';
-            startCameraBtn.disabled = true;
-        }
-    });
-
-    startCameraBtn.addEventListener('click', async () => {
+    async function startCamera() {
+        subtitle.textContent = "សូមដាក់មុខរបស់អ្នកឱ្យចំកណ្តាលរង្វង់";
         cameraSection.classList.remove('hidden');
         try {
             currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
             video.srcObject = currentStream;
             video.addEventListener('loadedmetadata', () => {
                 startFaceDetection();
-                startCameraBtn.classList.add('hidden');
                 captureBtn.classList.remove('hidden');
             });
         } catch (err) {
             console.error("Error accessing camera: ", err);
             showMessage("មិនអាចចូលប្រើកាមេរ៉ាបានទេ។ សូមអនុញ្ញាតឱ្យគេហទំព័រនេះប្រើប្រាស់កាមេរ៉ារបស់អ្នក។", "error");
         }
+    }
+
+    studentSelect.addEventListener('change', async (event) => {
+        const selectedId = event.detail.value;
+        if (selectedId) {
+            const student = studentsData.find(s => s[0].toString() === selectedId.toString());
+            if (student) {
+                studentClassDisplay.textContent = student[2] || 'N/A';
+                classPlaceholder.classList.add('hidden');
+                studentClassWrapper.classList.remove('hidden');
+                selectionArea.classList.add('hidden');
+                await startCamera();
+            }
+        } else {
+             classPlaceholder.classList.remove('hidden');
+             studentClassWrapper.classList.add('hidden');
+        }
     });
 
     function startFaceDetection() {
+        const detectionOptions = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.6 });
+
         faceApiInterval = setInterval(async () => {
             if (video.readyState < 3) return;
-            const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
-            if (detections.length === 1) {
-                faceStatus.textContent = 'ល្អណាស់! ផ្ទៃមុខត្រូវបានស្គាល់។';
-                faceStatus.classList.remove('text-red-500');
-                faceStatus.classList.add('text-green-500');
-                captureBtn.disabled = false;
-            } else if (detections.length > 1) {
-                faceStatus.textContent = 'សូមរក្សាមុខតែម្នាក់ក្នុងរូបភាព។';
-                faceStatus.classList.add('text-red-500');
-                faceStatus.classList.remove('text-green-500');
-                captureBtn.disabled = true;
+            
+            // UPGRADED DETECTION LOGIC
+            const detection = await faceapi.detectSingleFace(video, detectionOptions).withFaceLandmarks();
+
+            if (detection) {
+                // High-quality check
+                const isGoodQuality = detection.detection.score > 0.8; 
+                
+                if (isGoodQuality) {
+                    faceStatus.textContent = 'ល្អណាស់! រក្សាទីតាំងបែបនេះ។';
+                    faceStatus.classList.remove('text-red-500');
+                    faceStatus.classList.add('text-green-500');
+                    videoWrapper.classList.add('ready');
+                    captureBtn.disabled = false;
+                } else {
+                    faceStatus.textContent = 'សូមចូលទៅជិតឬបំភ្លឺពន្លឺបន្ថែម។';
+                    faceStatus.classList.add('text-red-500');
+                    faceStatus.classList.remove('text-green-500');
+                    videoWrapper.classList.remove('ready');
+                    captureBtn.disabled = true;
+                }
             } else {
                 faceStatus.textContent = 'រកមិនឃើញផ្ទៃមុខ សូមដាក់មុខចំកណ្តាល។';
                 faceStatus.classList.add('text-red-500');
                 faceStatus.classList.remove('text-green-500');
+                videoWrapper.classList.remove('ready');
                 captureBtn.disabled = true;
             }
         }, 500);
@@ -315,53 +367,60 @@
             currentStream.getTracks().forEach(track => track.stop());
         }
         clearInterval(faceApiInterval);
+        videoWrapper.classList.remove('ready');
     }
 
     captureBtn.addEventListener('click', () => {
-        // ========= FIX STARTS HERE (REVISED LOGIC) =========
-        // 1. Draw the image from the video to the canvas.
         const context = captureCanvas.getContext('2d');
         const size = 512;
         captureCanvas.width = size;
         captureCanvas.height = size;
         context.translate(size, 0);
         context.scale(-1, 1);
-        const sx = (video.videoWidth - video.videoHeight) / 2;
-        const sy = 0;
-        const sWidth = video.videoHeight;
-        const sHeight = video.videoHeight;
+
+        let sx, sy, sWidth, sHeight;
+        const videoRatio = video.videoWidth / video.videoHeight;
+        const canvasRatio = 1;
+
+        if (videoRatio > canvasRatio) {
+            sHeight = video.videoHeight;
+            sWidth = sHeight * canvasRatio;
+            sx = (video.videoWidth - sWidth) / 2;
+            sy = 0;
+        } else {
+            sWidth = video.videoWidth;
+            sHeight = sWidth / canvasRatio;
+            sx = 0;
+            sy = (video.videoHeight - sHeight) / 2;
+        }
+        
         context.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, size, size);
         
-        // 2. Set the photo preview source from the canvas data IMMEDIATELY.
         photoPreview.src = captureCanvas.toDataURL('image/jpeg');
-
-        // 3. NOW, it's safe to stop the camera stream.
         stopCamera();
-        // ========= FIX ENDS HERE =========
 
-        // 4. Update the UI to show the preview and hide the video.
         video.parentElement.classList.add('hidden');
         photoPreview.classList.remove('hidden');
         captureBtn.classList.add('hidden');
         uploadBtn.classList.remove('hidden');
         retakeBtn.classList.remove('hidden');
         faceStatus.classList.add('hidden');
+        subtitle.textContent = "បញ្ជាក់រូបភាពរបស់អ្នក រួចចុចបញ្ជូន";
     });
 
     retakeBtn.addEventListener('click', async () => {
         video.parentElement.classList.remove('hidden');
         photoPreview.classList.add('hidden');
-        captureBtn.classList.remove('hidden');
+        captureBtn.classList.add('hidden');
         uploadBtn.classList.add('hidden');
         retakeBtn.classList.add('hidden');
         faceStatus.classList.remove('hidden');
-        try {
-            currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-            video.srcObject = currentStream;
-            video.addEventListener('loadedmetadata', startFaceDetection);
-        } catch (err) {
-             showMessage("មិនអាចបើកកាមេរ៉ាឡើងវិញបានទេ។", "error");
-        }
+        selectionArea.classList.remove('hidden');
+        cameraSection.classList.add('hidden');
+        subtitle.textContent = "សូមជ្រើសរើសអត្តលេខរបស់អ្នកដើម្បីចាប់ផ្តើម";
+        choicesInstance.setChoiceByValue(''); // Clear selection
+        classPlaceholder.classList.remove('hidden');
+        studentClassWrapper.classList.add('hidden');
     });
     
     uploadBtn.addEventListener('click', async () => {
@@ -392,7 +451,7 @@
             });
             const result = await response.json();
             if (result.status === 'success') {
-                showMessage(`ជោគជ័យ! រូបភាព ${student[1]} ត្រូវបានបញ្ជូនជោគជ័យ`);
+                showMessage(`ជោគជ័យ! រូបភាពសម្រាប់ ${student[1]} ត្រូវបានបញ្ជូនជោគជ័យ។`);
                  setTimeout(() => location.reload(), 2500);
             } else {
                 throw new Error(result.message || 'Unknown error from server');
@@ -409,6 +468,12 @@
     });
 
     window.onload = () => {
+        const loadingLogo = document.getElementById('loading-logo');
+        const logoSrc = loadingLogo.getAttribute('src');
+        if (logoSrc && logoSrc !== '') {
+            loadingLogo.style.display = 'block';
+        }
+
         initializeChoices();
         fetchStudents();
         loadModels();
@@ -417,7 +482,4 @@
 
 </body>
 </html>
-
-
-
 
