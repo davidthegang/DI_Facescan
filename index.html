@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Face Scan Digital Industry</title>
-    <link rel="shortcut icon" href="https://img.freepik.com/premium-vector/face-scan-icon_933463-79729.jpg" type="image/x-icon">
+    <link rel="shortcut icon" href="di_logo.png" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Choices.js for searchable dropdown -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
@@ -46,50 +46,27 @@
             border-color: #22c55e; /* Green-500 */
         }
         @keyframes pulse-glow {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 10px rgba(255, 0, 0, 0.6),
-                0 0 20px rgba(255, 0, 0, 0.4);
-  }
-  25% {
-    transform: scale(1.08);
-    box-shadow: 0 0 25px rgba(0, 255, 255, 0.9),
-                0 0 35px rgba(0, 255, 255, 0.6);
-  }
-  50% {
-    transform: scale(1);
-    box-shadow: 0 0 20px rgba(43, 25, 202, 0.8),
-                0 0 30px rgba(43, 25, 202, 0.8);
-  }
-  75% {
-    transform: scale(1.08);
-    box-shadow: 0 0 25px rgba(14, 14, 13, 0.9),
-                0 0 35px rgba(14, 14, 13, 0.9);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 10px rgba(14, 209, 47, 0.6),
-                0 0 20px rgba(14, 209, 47, 0.6);
-  }
-}
-.animate-pulse-glow {
-  animation: pulse-glow 3s ease-in-out infinite;
-  border-radius: 9999px;
-}
-        /* UPDATED STYLE FOR SEARCH BOX */
+          0% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 0, 0, 0.6), 0 0 20px rgba(255, 0, 0, 0.4); }
+          25% { transform: scale(1.08); box-shadow: 0 0 25px rgba(0, 255, 255, 0.9), 0 0 35px rgba(0, 255, 255, 0.6); }
+          50% { transform: scale(1); box-shadow: 0 0 20px rgba(43, 25, 202, 0.8), 0 0 30px rgba(43, 25, 202, 0.8); }
+          75% { transform: scale(1.08); box-shadow: 0 0 25px rgba(14, 14, 13, 0.9), 0 0 35px rgba(14, 14, 13, 0.9); }
+          100% { transform: scale(1); box-shadow: 0 0 10px rgba(14, 209, 47, 0.6), 0 0 20px rgba(14, 209, 47, 0.6); }
+        }
+        .animate-pulse-glow {
+          animation: pulse-glow 3s ease-in-out infinite;
+          border-radius: 9999px;
+        }
         .choices__inner {
             background-color: white;
-            padding: 0.55rem 2.5rem 0.55rem 1rem; /* Adjusted padding-right for icon */
+            padding: 0.55rem 2.5rem 0.55rem 1rem;
             border-radius: 0.5rem;
             border: 1px solid #d1d5db;
-            min-height: 3rem; /* 48px or h-12 */
-            /* Added search icon */
+            min-height: 3rem;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z' clip-rule='evenodd' /%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 0.75rem center;
             background-size: 1.25rem 1.25rem;
         }
-        /* Hide default dropdown arrow to prevent overlap */
         .choices[data-type*="select-one"]::after {
             display: none;
         }
@@ -101,82 +78,81 @@
 </head>
 <body class="bg-gray-100">
 
-    <!-- NEW LOADING OVERLAY -->
 <div id="loading-state" class="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50 transition-opacity duration-300">
-    <!-- Logo with pulse + rainbow glow -->
     <img src="di_logo.png" alt="Logo" 
          class="w-28 h-28 mb-6 rounded-full object-cover shadow-lg animate-pulse-glow" 
          id="loading-logo">
     <p class="text-white mt-4 text-lg font-semibold">សូមរង់ចាំ...</p>
 </div>
 
-    <div class="container p-4">
-        <div id="app-card" class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl transition-all duration-300">
-            <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-2">ប្រព័ន្ធថតមុខដោយស្វ័យប្រវត្ត</h1>
-            <p id="subtitle" class="text-center text-gray-500 mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នកដើម្បីចាប់ផ្តើម</p>
+<div class="container p-4">
+    <div id="app-card" class="relative bg-white p-6 md:p-8 rounded-2xl shadow-2xl transition-all duration-300">
+        
+        <!-- NEW BACK BUTTON DESIGN -->
+        <button id="back-btn" class="absolute -top-5 -left-5 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-500 hover:bg-gray-200 hover:shadow-xl transform hover:scale-110 transition-all duration-300 hidden">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
 
-            <div id="form-state" class="hidden">
-                <div id="selection-area" class="mb-6">
-                     <div class="grid grid-cols-3 gap-4 items-end">
-                        <div class="col-span-2">
-                            <label for="student-select" class="block text-sm font-medium text-gray-700 mb-1">ស្វែងរកអត្តលេខ ឬឈ្មោះ</label>
-                            <select id="student-select"></select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">ថ្នាក់រៀន</label>
-                            <div id="student-class-wrapper" class="w-full p-3 bg-gray-100 rounded-lg h-12 flex items-center justify-center text-gray-800 font-bold hidden">
-                                <span id="student-class-display" class="truncate"></span>
-                            </div>
-                            <div id="class-placeholder" class="w-full p-3 bg-gray-100 rounded-lg h-12 flex items-center justify-center text-gray-400">
-                                <span>...</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="camera-section" class="hidden">
-                    <div id="video-wrapper" class="video-container aspect-square mx-auto mb-4 w-56 sm:w-64 md:w-80 max-w-full bg-gray-200">
-                        <video id="video" playsinline autoplay muted></video>
-                        <canvas id="overlay"></canvas>
-                    </div>
-                    <canvas id="capture-canvas" class="hidden"></canvas>
-                    <img id="photo-preview" class="hidden rounded-full mx-auto mb-4 w-56 sm:w-64 md:w-80 max-w-full aspect-square object-cover border-4 border-green-500">
-                    <p id="face-status" class="text-center text-sm mb-4 h-5 font-semibold"></p>
-                </div>
-
-                <div class="flex flex-col space-y-3">
-                    <button id="capture-btn" class="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition hidden disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
-                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a.5.5 S0 01.5-.5h3a.5.5 0 010 1h-3A.5.5 0 018 7z" clip-rule="evenodd"></path><path d="M10 3a.5.5 0 01.5.5v3a.5.5 0 01-1 0v-3A.5.5 0 0110 3z"></path></svg>
-                        <span>ថតរូប</span>
-                    </button>
-                    <button id="upload-btn" class="w-full bg-purple-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-purple-700 transition hidden disabled:bg-gray-400 flex items-center justify-center space-x-2">
-                        <span id="upload-text">
-                            <svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                            បញ្ជូនរូបភាព
-                        </span>
-                        <div id="upload-loader" class="loader w-5 h-5 border-t-white hidden"></div>
-                    </button>
-                    <button id="retake-btn" class="w-full bg-gray-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-600 transition hidden flex items-center justify-center space-x-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 9a9 9 0 0114.13-4.13M20 15a9 9 0 01-14.13 4.13"></path></svg>
-                        <span>ថតម្តងទៀត</span>
-                    </button>
-                </div>
-            </div>
-
-            <div id="message-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
-                 <div class="bg-white rounded-2xl p-8 shadow-xl text-center transform transition-all" style="animation: fade-in-up 0.3s forwards;">
-                     <div id="modal-icon-container" class="mx-auto mb-4"></div>
-                     <p id="modal-message" class="text-lg text-gray-700 mb-6"></p>
-                     <button id="modal-close-btn" class="bg-blue-500 text-white font-bold py-2 px-8 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">យល់ព្រម</button>
-                 </div>
-            </div>
-            <style>
-                @keyframes fade-in-up {
-                    0% { opacity: 0; transform: translateY(20px) scale(0.95); }
-                    100% { opacity: 1; transform: translateY(0) scale(1); }
-                }
-            </style>
+        <div class="text-center mb-2">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">ប្រព័ន្ធស្កេនមុខឌីជីថល</h1>
         </div>
+        <p id="subtitle" class="text-center text-gray-500 mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នក</p>
+
+        <div id="form-state" class="hidden">
+            <div id="selection-area" class="mb-6">
+                 <div class="grid grid-cols-3 gap-4 items-center">
+                    <div class="col-span-2">
+                        <select id="student-select"></select>
+                    </div>
+                    <div>
+                        <div id="student-class-wrapper" class="w-full p-3 bg-gray-100 rounded-lg h-12 flex items-center justify-center text-gray-800 font-bold hidden">
+                            <span id="student-class-display" class="truncate"></span>
+                        </div>
+                        <div id="class-placeholder" class="w-full p-3 bg-gray-100 rounded-lg h-12 flex items-center justify-center text-gray-400">
+                            <span>...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="camera-section" class="hidden">
+                <div id="video-wrapper" class="video-container aspect-square mx-auto mb-4 w-56 sm:w-64 md:w-80 max-w-full bg-gray-200">
+                    <video id="video" playsinline autoplay muted></video>
+                    <canvas id="overlay"></canvas>
+                </div>
+                <canvas id="capture-canvas" class="hidden"></canvas>
+                <img id="photo-preview" class="hidden rounded-full mx-auto mb-4 w-56 sm:w-64 md:w-80 max-w-full aspect-square object-cover border-4 border-green-500">
+                <p id="face-status" class="text-center text-sm mb-4 h-5 font-semibold"></p>
+            </div>
+
+            <div class="flex flex-col space-y-3">
+                <button id="upload-btn" class="w-full bg-purple-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-purple-700 transition hidden disabled:bg-gray-400 flex items-center justify-center space-x-2">
+                    <span id="upload-text">
+                        <svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        បញ្ជូនរូបភាព
+                    </span>
+                    <div id="upload-loader" class="loader w-5 h-5 border-t-white hidden"></div>
+                </button>
+                <button id="retake-btn" class="w-full bg-gray-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-600 transition hidden flex items-center justify-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 9a9 9 0 0114.13-4.13M20 15a9 9 0 01-14.13 4.13"></path></svg>
+                    <span>ថតម្តងទៀត</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="message-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
+             <div class="bg-white rounded-2xl p-8 shadow-xl text-center transform transition-all" style="animation: fade-in-up 0.3s forwards;">
+                 <div id="modal-icon-container" class="mx-auto mb-4"></div>
+                 <p id="modal-message" class="text-lg text-gray-700 mb-6"></p>
+                 <button id="modal-close-btn" class="bg-blue-500 text-white font-bold py-2 px-8 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">យល់ព្រម</button>
+             </div>
+        </div>
+        <style>
+            @keyframes fade-in-up {
+                0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+                100% { opacity: 1; transform: translateY(0) scale(1); }
+            }
+        </style>
     </div>
 
 <script>
@@ -195,7 +171,6 @@
     const studentClassWrapper = document.getElementById('student-class-wrapper');
     const studentClassDisplay = document.getElementById('student-class-display');
     const classPlaceholder = document.getElementById('class-placeholder');
-    const captureBtn = document.getElementById('capture-btn');
     const uploadBtn = document.getElementById('upload-btn');
     const retakeBtn = document.getElementById('retake-btn');
     const cameraSection = document.getElementById('camera-section');
@@ -206,6 +181,7 @@
     const faceStatus = document.getElementById('face-status');
     const uploadText = document.getElementById('upload-text');
     const uploadLoader = document.getElementById('upload-loader');
+    const backBtn = document.getElementById('back-btn');
     
     // Modal Elements
     const messageModal = document.getElementById('message-modal');
@@ -220,6 +196,7 @@
     let currentStream;
     let faceApiInterval;
     let choicesInstance = null;
+    let stableFramesCount = 0;
 
     function showMessage(message, type = 'success') {
         modalMessage.textContent = message;
@@ -232,14 +209,15 @@
     });
 
     async function loadModels() {
-        // UPDATED: Pointing to the local 'weights' folder
         const MODEL_URL = './weights';
         const loadingText = loadingState.querySelector('p');
         try {
-            loadingText.textContent = 'កំពុងទាញយកម៉ូដែលវិភាគមុខ... (1/2)';
+            loadingText.textContent = 'កំពុងទាញយកម៉ូដែលវិភាគមុខ... (1/3)';
             await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
-            loadingText.textContent = 'កំពុងទាញយកម៉ូដែលវិភាគមុខ... (2/2)';
+            loadingText.textContent = 'កំពុងទាញយកម៉ូដែលវិភាគមុខ... (2/3)';
             await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+            loadingText.textContent = 'កំពុងទាញយកម៉ូដែលវិភាគមុខ... (3/3)';
+            await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
             console.log("FaceAPI models loaded successfully from local folder.");
         } catch (error) {
             console.error("Error loading FaceAPI models from local folder:", error);
@@ -253,7 +231,6 @@
     async function fetchStudents() {
         const loadingText = loadingState.querySelector('p');
         loadingText.textContent = 'កំពុងទាញយកទិន្នន័យ...';
-
         
         if (!SCRIPT_URL.includes('script.google.com')) {
             loadingState.querySelector('.loader').style.display = 'none';
@@ -269,11 +246,10 @@
             studentsData = data.slice(1);
             populateChoices();
             
-            // Fade out and then hide the loading overlay
             loadingState.classList.add('opacity-0');
             setTimeout(() => {
                 loadingState.style.display = 'none';
-            }, 300); // This duration should match the CSS transition
+            }, 300);
 
             formState.classList.remove('hidden');
         } catch (error) {
@@ -290,8 +266,8 @@
             itemSelectText: 'ចុចដើម្បីជ្រើសរើស',
             noResultsText: 'រកមិនឃើញលទ្ធផល',
             noChoicesText: 'កំពុងទាញយកទិន្នន័យ...',
-            placeholder: 'វាយស្វែងរក...',
-            placeholderValue: 'ឈ្មោះនិងអត្ថលេខ',
+            placeholder: 'វាយអត្តលេខ ឬឈ្មោះ...',
+            placeholderValue: 'អត្តលេខ ឬឈ្មោះ...',
             shouldSort: false,
         });
     }
@@ -309,14 +285,14 @@
     }
 
     async function startCamera() {
-        subtitle.textContent = "សូមដាក់មុខរបស់អ្នកឱ្យចំកណ្តាលរង្វង់";
+        subtitle.textContent = "ប្រព័ន្ធនឹងថតដោយស្វ័យប្រវត្តិ";
         cameraSection.classList.remove('hidden');
+        backBtn.classList.remove('hidden');
         try {
             currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
             video.srcObject = currentStream;
             video.addEventListener('loadedmetadata', () => {
                 startFaceDetection();
-                captureBtn.classList.remove('hidden');
             });
         } catch (err) {
             console.error("Error accessing camera: ", err);
@@ -342,35 +318,66 @@
     });
 
     function startFaceDetection() {
-        const detectionOptions = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.6 });
+        stableFramesCount = 0;
+        const detectionOptions = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.7 });
 
         faceApiInterval = setInterval(async () => {
             if (video.readyState < 3) return;
             
-            const detection = await faceapi.detectSingleFace(video, detectionOptions).withFaceLandmarks();
+            const detection = await faceapi.detectSingleFace(video, detectionOptions)
+                .withFaceLandmarks()
+                .withFaceExpressions();
+
+            let allConditionsMet = false;
+            let feedbackMessage = 'រកមិនឃើញផ្ទៃមុខ សូមដាក់មុខចំកណ្តាល។';
 
             if (detection) {
-                const isGoodQuality = detection.detection.score > 0.8; 
+                const expressions = detection.expressions;
+                const neutral = expressions.neutral > 0.7;
+                const happy = expressions.happy > 0.7;
+
+                const box = detection.detection.box;
+                const faceSize = (box.width + box.height) / 2;
+                const videoSize = (video.videoWidth + video.videoHeight) / 2;
+                const isCloseEnough = faceSize / videoSize > 0.35;
+
+                const centerX = box.x + box.width / 2;
+                const centerY = box.y + box.height / 2;
+                const isCentered = Math.abs(centerX - video.videoWidth / 2) < video.videoWidth * 0.2 &&
+                                   Math.abs(centerY - video.videoHeight / 2) < video.videoHeight * 0.2;
                 
-                if (isGoodQuality) {
-                    faceStatus.textContent = 'ល្អណាស់! រក្សាទីតាំងបែបនេះ';
-                    faceStatus.classList.remove('text-red-500');
-                    faceStatus.classList.add('text-green-500');
-                    videoWrapper.classList.add('ready');
-                    captureBtn.disabled = false;
+                const highConfidence = detection.detection.score > 0.9;
+
+                if (!highConfidence) {
+                    feedbackMessage = 'គុណភាពរូបភាពទាប សូមបន្ថែមពន្លឺ។';
+                } else if (!isCloseEnough) {
+                    feedbackMessage = 'សូមចូលទៅជិតកាមេរ៉ាបន្តិច។';
+                } else if (!isCentered) {
+                    feedbackMessage = 'សូមដាក់មុខរបស់អ្នកឱ្យចំកណ្តាល។';
+                } else if (!neutral && !happy) {
+                    feedbackMessage = 'សូមរក្សាទឹកមុខធម្មតា។';
                 } else {
-                    faceStatus.textContent = 'សូមចូលទៅជិតឬបំភ្លឺពន្លឺបន្ថែម';
-                    faceStatus.classList.add('text-red-500');
-                    faceStatus.classList.remove('text-green-500');
-                    videoWrapper.classList.remove('ready');
-                    captureBtn.disabled = true;
+                    allConditionsMet = true;
+                    feedbackMessage = `ស្ទើរតែរួចរាល់... រក្សាទីតាំងនេះ (${stableFramesCount}/4)`;
+                }
+            }
+
+            if (allConditionsMet) {
+                stableFramesCount++;
+                faceStatus.textContent = feedbackMessage;
+                faceStatus.classList.remove('text-red-500');
+                faceStatus.classList.add('text-green-500');
+                videoWrapper.classList.add('ready');
+
+                if (stableFramesCount >= 4) {
+                    triggerAutomaticCapture();
                 }
             } else {
-                faceStatus.textContent = 'រកមិនឃើញផ្ទៃមុខ សូមដាក់មុខចំកណ្តាល។';
+                stableFramesCount = 0;
+                faceStatus.textContent = feedbackMessage;
                 faceStatus.classList.add('text-red-500');
                 faceStatus.classList.remove('text-green-500');
                 videoWrapper.classList.remove('ready');
-                captureBtn.disabled = true;
             }
         }, 500);
     }
@@ -382,8 +389,10 @@
         clearInterval(faceApiInterval);
         videoWrapper.classList.remove('ready');
     }
+    
+    function triggerAutomaticCapture() {
+        stopCamera();
 
-    captureBtn.addEventListener('click', () => {
         const context = captureCanvas.getContext('2d');
         const size = 512;
         captureCanvas.width = size;
@@ -410,29 +419,55 @@
         context.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, size, size);
         
         photoPreview.src = captureCanvas.toDataURL('image/jpeg');
-        stopCamera();
-
+        
         video.parentElement.classList.add('hidden');
         photoPreview.classList.remove('hidden');
-        captureBtn.classList.add('hidden');
         uploadBtn.classList.remove('hidden');
         retakeBtn.classList.remove('hidden');
         faceStatus.classList.add('hidden');
         subtitle.textContent = "បញ្ជាក់រូបភាពរបស់អ្នក រួចចុចបញ្ជូន";
+    }
+
+    backBtn.addEventListener('click', () => {
+        const loadingOverlay = document.getElementById('loading-state');
+        const loadingText = loadingOverlay.querySelector('p');
+
+        loadingText.style.display = 'none';
+        loadingOverlay.style.display = 'flex';
+        loadingOverlay.classList.remove('opacity-0');
+
+        stopCamera();
+
+        setTimeout(() => {
+            cameraSection.classList.add('hidden');
+            selectionArea.classList.remove('hidden');
+            subtitle.textContent = "សូមជ្រើសរើសអត្តលេខរបស់អ្នកដើម្បីចាប់ផ្តើម";
+            backBtn.classList.add('hidden');
+
+            photoPreview.classList.add('hidden');
+            uploadBtn.classList.add('hidden');
+            retakeBtn.classList.add('hidden');
+            video.parentElement.classList.remove('hidden');
+            
+            choicesInstance.setChoiceByValue('');
+            studentClassWrapper.classList.add('hidden');
+            classPlaceholder.classList.remove('hidden');
+            
+            loadingOverlay.classList.add('opacity-0');
+            setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+                loadingText.style.display = 'block';
+            }, 300);
+
+        }, 500);
     });
 
-    // MODIFIED RETAKE BUTTON LOGIC
     retakeBtn.addEventListener('click', async () => {
-        // Hide the preview and action buttons
         photoPreview.classList.add('hidden');
         uploadBtn.classList.add('hidden');
         retakeBtn.classList.add('hidden');
-
-        // Show the camera and status text again
         video.parentElement.classList.remove('hidden');
         faceStatus.classList.remove('hidden');
-        
-        // Restart the camera and face detection process for the SAME student
         await startCamera(); 
     });
     
@@ -451,10 +486,7 @@
         choicesInstance.disable();
         
         const imageData = captureCanvas.toDataURL('image/jpeg', 0.9).split(',')[1];
-        
-        const payload = {
-            id: student[0], name: student[1], class: student[2], imageData: imageData
-        };
+        const payload = { id: student[0], name: student[1], class: student[2], imageData: imageData };
 
         try {
             const response = await fetch(SCRIPT_URL, {
@@ -488,8 +520,8 @@
         }
 
         initializeChoices();
-        await loadModels(); // Load models first
-        fetchStudents(); // Then fetch student data
+        await loadModels();
+        fetchStudents();
     };
 </script>
 
