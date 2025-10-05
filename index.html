@@ -158,7 +158,7 @@
                     </button>
                     <button id="retake-btn" class="w-full bg-gray-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-600 transition hidden flex items-center justify-center space-x-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 9a9 9 0 0114.13-4.13M20 15a9 9 0 01-14.13 4.13"></path></svg>
-                        <span>ថតឡើងវិញ</span>
+                        <span>ថតម្តងទៀត</span>
                     </button>
                 </div>
             </div>
@@ -421,19 +421,19 @@
         subtitle.textContent = "បញ្ជាក់រូបភាពរបស់អ្នក រួចចុចបញ្ជូន";
     });
 
+    // MODIFIED RETAKE BUTTON LOGIC
     retakeBtn.addEventListener('click', async () => {
-        video.parentElement.classList.remove('hidden');
+        // Hide the preview and action buttons
         photoPreview.classList.add('hidden');
-        captureBtn.classList.add('hidden');
         uploadBtn.classList.add('hidden');
         retakeBtn.classList.add('hidden');
+
+        // Show the camera and status text again
+        video.parentElement.classList.remove('hidden');
         faceStatus.classList.remove('hidden');
-        selectionArea.classList.remove('hidden');
-        cameraSection.classList.add('hidden');
-        subtitle.textContent = "សូមជ្រើសរើសអត្តលេខរបស់អ្នកដើម្បីចាប់ផ្តើម";
-        choicesInstance.setChoiceByValue(''); // Clear selection
-        classPlaceholder.classList.remove('hidden');
-        studentClassWrapper.classList.add('hidden');
+        
+        // Restart the camera and face detection process for the SAME student
+        await startCamera(); 
     });
     
     uploadBtn.addEventListener('click', async () => {
@@ -495,9 +495,4 @@
 
 </body>
 </html>
-
-
-
-
-
 
