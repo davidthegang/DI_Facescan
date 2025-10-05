@@ -45,7 +45,7 @@
         .video-container.ready {
             border-color: #22c55e; /* Green-500 */
         }
-@keyframes pulse-glow {
+        @keyframes pulse-glow {
   0% {
     transform: scale(1);
     box-shadow: 0 0 10px rgba(255, 0, 0, 0.6),
@@ -76,16 +76,22 @@
   animation: pulse-glow 3s ease-in-out infinite;
   border-radius: 9999px;
 }
-
+        /* UPDATED STYLE FOR SEARCH BOX */
         .choices__inner {
             background-color: white;
-            padding: 0.55rem 1rem;
+            padding: 0.55rem 2.5rem 0.55rem 1rem; /* Adjusted padding-right for icon */
             border-radius: 0.5rem;
             border: 1px solid #d1d5db;
             min-height: 3rem; /* 48px or h-12 */
+            /* Added search icon */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z' clip-rule='evenodd' /%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.25rem 1.25rem;
         }
+        /* Hide default dropdown arrow to prevent overlap */
         .choices[data-type*="select-one"]::after {
-            right: 1.25rem;
+            display: none;
         }
     </style>
     <!-- Khmer Font -->
@@ -101,12 +107,12 @@
     <img src="di_logo.png" alt="Logo" 
          class="w-28 h-28 mb-6 rounded-full object-cover shadow-lg animate-pulse-glow" 
          id="loading-logo">
-    <p class="text-white mt-4 text-lg font-semibold">កំពុងទាញយកទិន្នន័យសិស្ស...</p>
+    <p class="text-white mt-4 text-lg font-semibold">សូមរង់ចាំ...</p>
 </div>
 
     <div class="container p-4">
         <div id="app-card" class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl transition-all duration-300">
-            <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-2">ប្រព័ន្ធថតរូបកាត</h1>
+            <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-2">ប្រព័ន្ធថតមុខដោយស្វ័យប្រវត្ត</h1>
             <p id="subtitle" class="text-center text-gray-500 mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នកដើម្បីចាប់ផ្តើម</p>
 
             <div id="form-state" class="hidden">
@@ -226,21 +232,30 @@
     });
 
     async function loadModels() {
-        const MODEL_URL = 'https://justadudewhohacks.github.io/face-api.js/models';
+        // UPDATED: Pointing to the local 'weights' folder
+        const MODEL_URL = './weights';
+        const loadingText = loadingState.querySelector('p');
         try {
-            // UPGRADED MODELS FOR HIGHER QUALITY SCAN
+            loadingText.textContent = 'កំពុងទាញយកម៉ូដែលវិភាគមុខ... (1/2)';
             await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
-            await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL); // New model for landmarks
-            console.log("FaceAPI models loaded successfully.");
+            loadingText.textContent = 'កំពុងទាញយកម៉ូដែលវិភាគមុខ... (2/2)';
+            await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+            console.log("FaceAPI models loaded successfully from local folder.");
         } catch (error) {
-            console.error("Error loading FaceAPI models:", error);
-            showMessage("មិនអាចទាញយកម៉ូដែលវិភាគមុខបានទេ។ សូមព្យាយាមម្តងទៀត។", "error");
+            console.error("Error loading FaceAPI models from local folder:", error);
+            showMessage("មិនអាចទាញយកម៉ូដែលវិភាគមុខបានទេ។ សូមប្រាកដថា Folder 'weights' ត្រូវបានដាក់อย่างถูกต้อง។", "error");
+            loadingState.querySelector('.loader').style.display = 'none';
+            loadingText.innerHTML = 'เกิดข้อผิดพลาดในการโหลดโมเดล<br>กรุณาตรวจสอบ Console Log';
+            loadingText.classList.add('text-red-400');
         }
     }
 
     async function fetchStudents() {
+        const loadingText = loadingState.querySelector('p');
+        loadingText.textContent = 'កំពុងទាញយកទិន្នន័យសិស្ស...';
+
+        
         if (!SCRIPT_URL.includes('script.google.com')) {
-            const loadingText = loadingState.querySelector('p');
             loadingState.querySelector('.loader').style.display = 'none';
             loadingText.textContent = 'សូមមេត្តាប្តូរ SCRIPT_URL នៅក្នុងកូដជាមុនសិន។';
             loadingText.classList.add('text-red-400');
@@ -263,7 +278,6 @@
             formState.classList.remove('hidden');
         } catch (error) {
             console.error('Error fetching student data:', error);
-            const loadingText = loadingState.querySelector('p');
             loadingState.querySelector('.loader').style.display = 'none';
             loadingText.innerHTML = `มีបញ្หាក្នុងการទាញយកទិន្នន័យ។<br>សូមពិនិត្យ URL របស់ Apps Script ហើយព្យាយាមម្តងទៀត។`;
             loadingText.classList.add('text-red-400');
@@ -333,21 +347,19 @@
         faceApiInterval = setInterval(async () => {
             if (video.readyState < 3) return;
             
-            // UPGRADED DETECTION LOGIC
             const detection = await faceapi.detectSingleFace(video, detectionOptions).withFaceLandmarks();
 
             if (detection) {
-                // High-quality check
                 const isGoodQuality = detection.detection.score > 0.8; 
                 
                 if (isGoodQuality) {
-                    faceStatus.textContent = 'ល្អណាស់! រក្សាទីតាំងបែបនេះ។';
+                    faceStatus.textContent = 'ល្អណាស់! រក្សាទីតាំងនេះไว้។';
                     faceStatus.classList.remove('text-red-500');
                     faceStatus.classList.add('text-green-500');
                     videoWrapper.classList.add('ready');
                     captureBtn.disabled = false;
                 } else {
-                    faceStatus.textContent = 'សូមចូលទៅជិតឬបំភ្លឺពន្លឺបន្ថែម។';
+                    faceStatus.textContent = 'សូមเข้ามาใกล้ขึ้น ឬปรับแสงให้สว่างขึ้น';
                     faceStatus.classList.add('text-red-500');
                     faceStatus.classList.remove('text-green-500');
                     videoWrapper.classList.remove('ready');
@@ -406,7 +418,7 @@
         uploadBtn.classList.remove('hidden');
         retakeBtn.classList.remove('hidden');
         faceStatus.classList.add('hidden');
-        subtitle.textContent = "បញ្ជាក់រូបភាពរបស់អ្នក រួចចុចបញ្ជូន";
+        subtitle.textContent = "បញ្ជាក់រូបភាពរបស់អ្នក រួចแล้วចុចបញ្ជូន";
     });
 
     retakeBtn.addEventListener('click', async () => {
@@ -452,7 +464,7 @@
             });
             const result = await response.json();
             if (result.status === 'success') {
-                showMessage(`ជោគជ័យ! រូបភាពសម្រាប់ ${student[1]} ត្រូវបានបញ្ជូនជោគជ័យ។`);
+                showMessage(`ជោគជ័យ! រូបភាពសម្រាប់ ${student[1]} ត្រូវបានបញ្ជូនเรียบร้อยแล้ว។`);
                  setTimeout(() => location.reload(), 2500);
             } else {
                 throw new Error(result.message || 'Unknown error from server');
@@ -468,7 +480,7 @@
         }
     });
 
-    window.onload = () => {
+    window.onload = async () => {
         const loadingLogo = document.getElementById('loading-logo');
         const logoSrc = loadingLogo.getAttribute('src');
         if (logoSrc && logoSrc !== '') {
@@ -476,12 +488,11 @@
         }
 
         initializeChoices();
-        fetchStudents();
-        loadModels();
+        await loadModels(); // Load models first
+        fetchStudents(); // Then fetch student data
     };
 </script>
 
 </body>
 </html>
-
 
